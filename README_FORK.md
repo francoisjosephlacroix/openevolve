@@ -1,8 +1,22 @@
-# OpenEvolve - Windows Compatible Fork
+# OpenEvolve - Free AI Evolution Fork
 
-🚀 **Enhanced fork with Windows compatibility and Gemini integration**
+🚀 **MAJOR FEATURE: 1,000 FREE AI-GENERATED CANDIDATE SOLUTIONS PER DAY**
 
-This is an enhanced fork of [OpenEvolve](https://github.com/codelion/openevolve) with significant improvements for Windows users and Google Gemini model integration.
+This fork's primary breakthrough is enabling **completely free evolutionary algorithm development** through Google's generous Gemini API limits when routing through Gemini CLI. While the base repo only allows you to use an OpenAI-compatible API, **our fork provides 1,000 AI-generated candidate algorithms daily at zero cost** by using a bridge to turn Gemini CLI into an OpenAI-compatible API locally.
+
+## 💰 Why This Matters
+
+**Traditional AI Evolution Cost Problem:**
+- $200-$1,000 per 1,000 code generation requests for models such as Claude 4 or GPT-4
+- Most users can't afford extensive algorithm evolution
+
+**Our Solution:**
+- ✅ **Google Gemini Free Tier**: 1,000 requests/day on gemini-2.5-flash
+- ✅ **Zero API costs** for up to 1,000 evolution candidates daily
+- ✅ **Production-quality results** with state-of-the-art Gemini models
+- ✅ **Windows compatibility** + comprehensive bridge setup
+
+This enables **serious algorithmic research and optimization** accessible to students, researchers, and developers worldwide without prohibitive costs.
 
 ## 🆕 What Makes This Fork Special
 

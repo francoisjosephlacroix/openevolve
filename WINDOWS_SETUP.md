@@ -1,6 +1,22 @@
-# Windows Compatibility & Gemini Bridge Setup
+# OpenEvolve - Free AI Evolution Fork
 
-This fork includes significant improvements for Windows compatibility and integration with Google's Gemini models via the Gemini CLI bridge.
+🚀 **MAJOR FEATURE: 1,000 FREE AI-GENERATED CANDIDATE SOLUTIONS PER DAY**
+
+This fork's primary breakthrough is enabling **completely free evolutionary algorithm development** through Google's generous Gemini API limits when routing through Gemini CLI. While the base repo only allows you to use an OpenAI-compatible API, **our fork provides 1,000 AI-generated candidate algorithms daily at zero cost** by using a bridge to turn Gemini CLI into an OpenAI-compatible API locally.
+
+## 💰 Why This Matters
+
+**Traditional AI Evolution Cost Problem:**
+- $200-$1,000 per 1,000 code generation requests for models such as Claude 4 or GPT-4
+- Most users can't afford extensive algorithm evolution
+
+**Our Solution:**
+- ✅ **Google Gemini Free Tier**: 1,000 requests/day on gemini-2.5-flash
+- ✅ **Zero API costs** for up to 1,000 evolution candidates daily
+- ✅ **Production-quality results** with state-of-the-art Gemini models
+- ✅ **Windows compatibility** + comprehensive bridge setup
+
+This enables **serious algorithmic research and optimization** accessible to students, researchers, and developers worldwide without prohibitive costs.
 
 ## 🆕 What's New in This Fork
 
@@ -20,26 +36,76 @@ This fork includes significant improvements for Windows compatibility and integr
 ## 🚀 Quick Start on Windows
 
 ### Prerequisites
-1. Python 3.8+ installed
-2. [Gemini CLI MCP OpenAI Bridge](https://github.com/your-bridge-repo) running on `localhost:8765`
+1. **Python 3.8+** installed
+2. **Node.js v18+** installed  
+3. **Google account** for Gemini API access (free tier: 1,000 requests/day)
 
-### Installation
+### Step 1: Setup Gemini CLI MCP OpenAI Bridge (REQUIRED)
+
+**This bridge is essential** - it converts Gemini CLI into an OpenAI-compatible API that OpenEvolve can use.
+
 ```bash
-# Clone this fork
+# Clone the bridge fork (includes Windows improvements)
+git clone https://github.com/francoisjosephlacroix/gemini-cli-mcp-openai-bridge.git
+cd gemini-cli-mcp-openai-bridge
+
+# Install dependencies
+npm install
+
+# Build the bridge server
+npm run build
+```
+
+**One-time Authentication Setup:**
+```bash
+# Authenticate with Google (opens browser)
+node gemini-cli/packages/cli/dist/index.js auth
+```
+
+**Start the Bridge Server (keep running):**
+```bash
+# Start on localhost:8765 (default OpenEvolve expects)
+node bridge-server/dist/index.js --port 8765 --host 127.0.0.1
+
+# You should see:
+# [BRIDGE-SERVER] [INFO] Server running { port: 8765, host: '127.0.0.1', 
+#   mcpUrl: 'http://127.0.0.1:8765/mcp', openAIUrl: 'http://127.0.0.1:8765/v1' }
+```
+
+**Keep this terminal running** - OpenEvolve needs the bridge active.
+
+### Step 2: Setup OpenEvolve
+
+**In a NEW terminal window:**
+```bash
+# Clone this OpenEvolve fork
 git clone https://github.com/francoisjosephlacroix/openevolve.git
 cd openevolve
 
-# Install dependencies
+# Install Python dependencies
 pip install -e .
 ```
 
-### Running with Gemini Bridge
+### Step 3: Verify Setup
+
 ```bash
-# Test the bridge connection
+# Test bridge connectivity (bridge must be running)
 python test_bridge_connection.py
 
-# Run circle packing evolution with Gemini
+# Test Windows evaluator compatibility  
+cd examples/circle_packing
+python -c "from evaluator import evaluate; print('✅ Windows compatibility confirmed!')"
+```
+
+### Step 4: Run Free AI Evolution!
+
+```bash
+# Run circle packing evolution with free Gemini models
+# This will generate AI algorithms at zero cost!
 python -m openevolve.cli examples/circle_packing/initial_program.py examples/circle_packing/evaluator.py --config config_gemini_bridge.yaml --iterations 5
+
+# For longer runs (up to 1,000 free candidates per day):
+python -m openevolve.cli examples/circle_packing/initial_program.py examples/circle_packing/evaluator.py --config config_gemini_bridge.yaml --iterations 100
 ```
 
 ## 📁 New Configuration Files
