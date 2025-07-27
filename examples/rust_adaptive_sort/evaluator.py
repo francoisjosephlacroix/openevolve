@@ -35,7 +35,8 @@ async def evaluate(program_path: str) -> EvaluationResult:
             result = subprocess.run(
                 ["cargo", "init", "--name", "sort_test", str(project_dir)],
                 capture_output=True,
-                text=True
+                text=True,
+                shell=True
             )
             
             if result.returncode != 0:
@@ -179,7 +180,8 @@ mod rand {
                 cwd=project_dir,
                 capture_output=True,
                 text=True,
-                timeout=60
+                timeout=60,
+                shell=True
             )
             
             if build_result.returncode != 0:
@@ -205,7 +207,8 @@ mod rand {
                 cwd=project_dir,
                 capture_output=True,
                 text=True,
-                timeout=30
+                timeout=30,
+                shell=True
             )
             
             if run_result.returncode != 0:

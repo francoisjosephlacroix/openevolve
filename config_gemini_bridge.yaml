@@ -1,0 +1,128 @@
+# OpenEvolve Configuration for Gemini CLI MCP OpenAI Bridge
+# This configuration connects OpenEvolve to our Gemini CLI bridge proxy server
+
+# General settings
+max_iterations: 50                    # Start with fewer iterations for testing
+checkpoint_interval: 1               # Save checkpoints every 10 iterations
+log_level: "INFO"                     # Detailed logging
+random_seed: 42                       # Reproducible results
+
+# Evolution settings
+diff_based_evolution: true            # Use diff-based evolution for efficiency
+max_code_length: 10000                # Maximum allowed code length
+
+# LLM configuration - Using our Gemini CLI bridge proxy
+llm:
+  # Models available through our bridge (using Gemini models)
+  models:
+    - name: "gemini-2.0-flash-lite"    # Primary model for speed
+      weight: 0.7
+    - name: "gemini-2.0-flash"         # Secondary model for quality
+      weight: 0.3
+
+  # Models for LLM feedback (evaluation)
+  evaluator_models:
+    - name: "gemini-2.0-flash-lite"
+      weight: 1.0
+
+  # API configuration - Point to our bridge server
+  api_base: "http://localhost:8765/v1"  # Our Gemini CLI bridge endpoint
+  api_key: "dummy-key"                  # Bridge doesn't require real key (uses gemini-cli auth)
+
+  # Generation parameters
+  temperature: 0.7                      # Balanced creativity/consistency
+  top_p: 0.95                          # Top-p sampling
+  max_tokens: 4096                     # Maximum response length
+
+  # Request parameters
+  timeout: 120                         # Extended timeout for complex requests
+  retries: 3                           # Retry failed requests
+  retry_delay: 5                       # Wait between retries
+
+# Prompt configuration
+prompt:
+  system_message: |
+    You are an expert programmer with deep knowledge of algorithms and optimization. Your task is to evolve and improve code through careful analysis and creative problem-solving.
+    
+    You have access to powerful research and analysis tools:
+    - perplexity_ask: Use this to research current algorithms, techniques, or mathematical concepts
+    - perplexity_research: Use this for deep research on optimization methods or academic papers
+    - google_web_search: Search for implementations, documentation, or recent developments
+    - read_file: Read existing code files to understand patterns and implementations
+    - write_file: Create test files or save intermediate results
+    
+    When evolving code, consider:
+    1. Research current best practices and state-of-the-art techniques using the available tools
+    2. Look up mathematical foundations or optimization algorithms that could improve the solution
+    3. Search for similar problems and their solutions in literature
+    4. Use the tools to validate your approaches before implementing them
+    
+    Always leverage these tools when you need additional knowledge or want to research better approaches.
+  evaluator_system_message: "You are an expert code reviewer with extensive experience in software quality assessment."
+  
+  # Examples in prompts
+  num_top_programs: 3                  # Include top-performing programs
+  num_diverse_programs: 2              # Include diverse programs for inspiration
+  
+  # Template variations for diversity
+  use_template_stochasticity: true
+  template_variations:
+    improvement_suggestion:
+      - "Here's how we can enhance this code:"
+      - "I propose the following improvements:"
+      - "We can optimize this implementation by:"
+      - "Consider these enhancements:"
+  
+  # Artifact handling
+  include_artifacts: true              # Include execution outputs/errors
+  max_artifact_bytes: 16384            # 16KB limit for artifacts
+  artifact_security_filter: true      # Apply security filtering
+
+# Database configuration
+database:
+  # Storage settings
+  db_path: null                        # In-memory database for testing
+  in_memory: true                      # Keep in memory for speed
+  log_prompts: true                    # Log all interactions
+  
+  # Population settings
+  population_size: 20                 # Smaller population for testing
+  archive_size: 7                     # Elite archive size
+  num_islands: 3                       # Island-based evolution
+  
+  # Island evolution parameters
+  migration_interval: 20               # Migrate every 20 generations
+  migration_rate: 0.15                 # 15% migration rate
+  
+  # Selection parameters
+  elite_selection_ratio: 0.2           # 20% elite selection
+  exploration_ratio: 0.3               # 30% exploration
+  exploitation_ratio: 0.6              # 60% exploitation
+  
+  # MAP-Elites feature dimensions
+  feature_dimensions:
+    - "complexity"                     # Code length (built-in)
+    - "diversity"                      # Code structure diversity (built-in)
+  
+  feature_bins: 8                      # 8 bins per dimension for testing
+  diversity_reference_size: 15         # Reference set for diversity calculation
+
+# Evaluator configuration
+evaluator:
+  # Timeouts and limits
+  timeout: 180                         # 3 minutes maximum per evaluation
+  max_retries: 2                       # Retry failed evaluations
+  
+  # Evaluation strategies
+  cascade_evaluation: true             # Multi-stage evaluation
+  cascade_thresholds:                  # Progressive thresholds
+    - 0.4                              # First stage (quick checks)
+    - 0.7                              # Second stage (detailed tests)
+    - 0.9                              # Final stage (comprehensive evaluation)
+  
+  # Parallelization
+  parallel_evaluations: 3              # Conservative parallel execution
+  
+  # LLM feedback (experimental)
+  use_llm_feedback: false              # Disable for initial testing
+  llm_feedback_weight: 0.1             # Weight if enabled

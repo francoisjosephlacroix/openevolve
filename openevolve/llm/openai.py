@@ -71,6 +71,7 @@ class OpenAILLM(LLMInterface):
                 "model": self.model,
                 "messages": formatted_messages,
                 "max_completion_tokens": kwargs.get("max_tokens", self.max_tokens),
+                "stream": False,  # Ensure non-streaming for bridge compatibility
             }
         else:
             params = {
@@ -79,6 +80,7 @@ class OpenAILLM(LLMInterface):
                 "temperature": kwargs.get("temperature", self.temperature),
                 "top_p": kwargs.get("top_p", self.top_p),
                 "max_tokens": kwargs.get("max_tokens", self.max_tokens),
+                "stream": False,  # Ensure non-streaming for bridge compatibility
             }
 
         # Add seed parameter for reproducibility if configured

@@ -7,7 +7,6 @@ import importlib.util
 import numpy as np
 import time
 import os
-import signal
 import subprocess
 import tempfile
 import traceback
@@ -93,6 +92,10 @@ def run_with_timeout(program_path, timeout_seconds=20):
     """
     # Create a temporary file to execute
     with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as temp_file:
+        # Fix Windows path issues by using repr() to properly escape paths
+        program_path_escaped = repr(program_path)
+        temp_results_path_escaped = repr(f"{temp_file.name}.results")
+        
         # Write a script that executes the program and saves results
         script = f"""
 import sys
@@ -102,15 +105,15 @@ import pickle
 import traceback
 
 # Add the directory to sys.path
-sys.path.insert(0, os.path.dirname('{program_path}'))
+sys.path.insert(0, os.path.dirname({program_path_escaped}))
 
 # Debugging info
 print(f"Running in subprocess, Python version: {{sys.version}}")
-print(f"Program path: {program_path}")
+print(f"Program path: {program_path_escaped}")
 
 try:
     # Import the program
-    spec = __import__('importlib.util').util.spec_from_file_location("program", '{program_path}')
+    spec = __import__('importlib.util').util.spec_from_file_location("program", {program_path_escaped})
     program = __import__('importlib.util').util.module_from_spec(spec)
     spec.loader.exec_module(program)
     
@@ -126,17 +129,17 @@ try:
         'sum_radii': sum_radii
     }}
 
-    with open('{temp_file.name}.results', 'wb') as f:
+    with open({temp_results_path_escaped}, 'wb') as f:
         pickle.dump(results, f)
-    print(f"Results saved to {temp_file.name}.results")
+    print(f"Results saved to {temp_results_path_escaped}")
     
 except Exception as e:
     # If an error occurs, save the error instead
     print(f"Error in subprocess: {{str(e)}}")
     traceback.print_exc()
-    with open('{temp_file.name}.results', 'wb') as f:
+    with open({temp_results_path_escaped}, 'wb') as f:
         pickle.dump({{'error': str(e)}}, f)
-    print(f"Error saved to {temp_file.name}.results")
+    print(f"Error saved to {temp_results_path_escaped}")
 """
         temp_file.write(script.encode())
         temp_file_path = temp_file.name

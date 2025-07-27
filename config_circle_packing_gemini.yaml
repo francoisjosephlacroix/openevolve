@@ -1,0 +1,127 @@
+# Configuration for circle packing with artifacts using Gemini CLI Bridge
+max_iterations: 30  # Reduced for demo
+checkpoint_interval: 5
+log_level: "INFO"
+random_seed: 42
+
+# LLM configuration - Using our Gemini CLI bridge proxy
+llm:
+  # Models available through our bridge (using Gemini models)
+  models:
+    - name: "gemini-2.0-flash-lite"    # Primary model for speed
+      weight: 0.6
+    - name: "gemini-2.0-flash"         # Secondary model for quality
+      weight: 0.4
+
+  # Models for LLM feedback (evaluation)
+  evaluator_models:
+    - name: "gemini-2.0-flash-lite"
+      weight: 1.0
+
+  # API configuration - Point to our bridge server
+  api_base: "http://localhost:8765/v1"  # Our Gemini CLI bridge endpoint
+  api_key: "dummy-key"                  # Bridge doesn't require real key (uses gemini-cli auth)
+
+  # Generation parameters
+  temperature: 0.7                      # Balanced creativity/consistency
+  top_p: 0.95                          # Top-p sampling
+  max_tokens: 8192                     # Extended for complex algorithms
+
+  # Request parameters
+  timeout: 600                         # Extended timeout for complex requests
+  retries: 3                           # Retry failed requests
+  retry_delay: 5                       # Wait between retries
+
+# Prompt configuration
+prompt:
+  system_message: |
+    You are an expert mathematician specializing in circle packing problems and computational geometry. Your task is to improve a constructor function that directly produces a specific arrangement of 26 circles in a unit square, maximizing the sum of their radii. The AlphaEvolve paper achieved a sum of 2.635 for n=26.
+
+    Key geometric insights:
+    - Circle packings often follow hexagonal patterns in the densest regions
+    - Maximum density for infinite circle packing is pi/(2*sqrt(3)) ≈ 0.9069
+    - Edge effects make square container packing harder than infinite packing
+    - Circles can be placed in layers or shells when confined to a square
+    - Similar radius circles often form regular patterns, while varied radii allow better space utilization
+    - Perfect symmetry may not yield the optimal packing due to edge effects
+
+    Focus on designing an explicit constructor that places each circle in a specific position, rather than an iterative search algorithm.
+    
+    Pay close attention to execution artifacts and error messages to guide your improvements.
+  
+  evaluator_system_message: "You are an expert code reviewer with extensive experience in mathematical optimization and computational geometry."
+  
+  # Examples in prompts
+  num_top_programs: 3                  # Include top-performing programs
+  num_diverse_programs: 2              # Include diverse programs for inspiration
+  
+  # Template variations for diversity
+  use_template_stochasticity: true
+  template_variations:
+    improvement_suggestion:
+      - "Here's how we can optimize this circle packing:"
+      - "I propose the following geometric improvements:"
+      - "We can enhance this packing algorithm by:"
+      - "Consider these mathematical optimizations:"
+  
+  # Artifact handling - CRITICAL for this example!
+  include_artifacts: true              # Include execution outputs/errors
+  max_artifact_bytes: 32768            # 32KB limit for detailed feedback
+  artifact_security_filter: true      # Apply security filtering
+
+# Database configuration
+database:
+  # Storage settings
+  db_path: null                        # In-memory database for testing
+  in_memory: true                      # Keep in memory for speed
+  log_prompts: true                    # Log all interactions
+  
+  # Population settings
+  population_size: 20                  # Smaller population for demo
+  archive_size: 7                      # Elite archive size
+  num_islands: 3                       # Island-based evolution
+  
+  # Island evolution parameters
+  migration_interval: 15               # Migrate every 15 generations
+  migration_rate: 0.2                  # 20% migration rate
+  
+  # Selection parameters
+  elite_selection_ratio: 0.3           # 30% elite selection
+  exploration_ratio: 0.3               # 30% exploration
+  exploitation_ratio: 0.7              # 70% exploitation
+  
+  # MAP-Elites feature dimensions
+  feature_dimensions:
+    - "complexity"                     # Code length (built-in)
+    - "diversity"                      # Code structure diversity (built-in)
+  
+  feature_bins: 10                     # 10 bins per dimension
+  diversity_reference_size: 20         # Reference set for diversity calculation
+
+# Evaluator configuration
+evaluator:
+  # Timeouts and limits
+  timeout: 300                         # 5 minutes maximum per evaluation
+  max_retries: 2                       # Retry failed evaluations
+  
+  # Evaluation strategies
+  cascade_evaluation: true             # Multi-stage evaluation
+  cascade_thresholds:                  # Progressive thresholds
+    - 0.3                              # First stage (basic validity)
+    - 0.6                              # Second stage (decent packing)
+    - 0.8                              # Final stage (excellent packing)
+  
+  # ARTIFACTS - Key feature for this example
+  enable_artifacts: true               # Enable detailed feedback
+  
+  # Parallelization
+  parallel_evaluations: 3              # Conservative parallel execution
+  
+  # LLM feedback (experimental)
+  use_llm_feedback: false              # Disable for initial testing
+  llm_feedback_weight: 0.1             # Weight if enabled
+
+# Evolution settings
+diff_based_evolution: false            # Use full rewrites for constructor functions
+allow_full_rewrites: true             # Allow complete algorithm changes
+max_code_length: 20000                # Allow complex algorithms

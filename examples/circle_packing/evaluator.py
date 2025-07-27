@@ -6,7 +6,6 @@ import importlib.util
 import numpy as np
 import time
 import os
-import signal
 import subprocess
 import tempfile
 import traceback
@@ -70,50 +69,54 @@ def run_with_timeout(program_path, timeout_seconds=20):
     # Create a temporary file to execute
     with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as temp_file:
         # Write a script that executes the program and saves results
-        script = f"""
-import sys
+        # Use proper path handling for cross-platform compatibility
+        program_path_norm = os.path.normpath(program_path)
+        temp_file_norm = os.path.normpath(temp_file.name)
+        results_path_norm = os.path.normpath(f"{temp_file.name}.results")
+        
+        script = f'''import sys
 import numpy as np
 import os
 import pickle
 import traceback
 
 # Add the directory to sys.path
-sys.path.insert(0, os.path.dirname('{program_path}'))
+sys.path.insert(0, os.path.dirname({program_path_norm!r}))
 
 # Debugging info
-print(f"Running in subprocess, Python version: {{sys.version}}")
-print(f"Program path: {program_path}")
+print("Running in subprocess, Python version:", sys.version)
+print("Program path:", {program_path_norm!r})
 
 try:
     # Import the program
-    spec = __import__('importlib.util').util.spec_from_file_location("program", '{program_path}')
-    program = __import__('importlib.util').util.module_from_spec(spec)
+    spec = __import__(\'importlib.util\').util.spec_from_file_location("program", {program_path_norm!r})
+    program = __import__(\'importlib.util\').util.module_from_spec(spec)
     spec.loader.exec_module(program)
     
     # Run the packing function
     print("Calling run_packing()...")
     centers, radii, sum_radii = program.run_packing()
-    print(f"run_packing() returned successfully: sum_radii = {{sum_radii}}")
+    print("run_packing() returned successfully: sum_radii =", sum_radii)
 
     # Save results to a file
     results = {{
-        'centers': centers,
-        'radii': radii,
-        'sum_radii': sum_radii
+        \'centers\': centers,
+        \'radii\': radii,
+        \'sum_radii\': sum_radii
     }}
 
-    with open('{temp_file.name}.results', 'wb') as f:
+    with open({results_path_norm!r}, \'wb\') as f:
         pickle.dump(results, f)
-    print(f"Results saved to {temp_file.name}.results")
+    print("Results saved to", {results_path_norm!r})
     
 except Exception as e:
     # If an error occurs, save the error instead
-    print(f"Error in subprocess: {{str(e)}}")
+    print("Error in subprocess:", str(e))
     traceback.print_exc()
-    with open('{temp_file.name}.results', 'wb') as f:
-        pickle.dump({{'error': str(e)}}, f)
-    print(f"Error saved to {temp_file.name}.results")
-"""
+    with open({results_path_norm!r}, \'wb\') as f:
+        pickle.dump({{\'error\': str(e)}}, f)
+    print("Error saved to", {results_path_norm!r})
+'''
         temp_file.write(script.encode())
         temp_file_path = temp_file.name
 

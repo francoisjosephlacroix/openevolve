@@ -7,7 +7,6 @@ import numpy as np
 import time
 import concurrent.futures
 import traceback
-import signal
 
 
 def run_with_timeout(func, args=(), kwargs={}, timeout_seconds=5):

@@ -1,0 +1,115 @@
+# OpenEvolve Configuration for Circle Packing with MCP Tools
+# This configuration specifically instructs Gemini to use research tools for circle packing
+
+# General settings
+max_iterations: 25
+checkpoint_interval: 1
+log_level: "INFO"
+random_seed: 42
+
+# Evolution settings
+diff_based_evolution: true
+max_code_length: 15000
+
+# LLM configuration - Using our Gemini CLI bridge proxy
+llm:
+  models:
+    - name: "gemini-2.0-flash-lite"
+      weight: 0.8
+    - name: "gemini-2.0-flash"
+      weight: 0.2
+
+  evaluator_models:
+    - name: "gemini-2.0-flash-lite"
+      weight: 1.0
+
+  api_base: "http://localhost:8765/v1"
+  api_key: "dummy-key"
+  temperature: 0.7
+  top_p: 0.95
+  max_tokens: 8192  # Increased for tool usage
+  timeout: 180      # Extended timeout for tool calls
+  retries: 3
+  retry_delay: 5
+
+# Prompt configuration with explicit tool usage instructions
+prompt:
+  system_message: |
+    You are an expert mathematician and programmer specializing in circle packing optimization. Your goal is to evolve code that maximizes the sum of radii for 26 circles packed in a unit square. The current best known result from AlphaEvolve is 2.635.
+    
+    IMPORTANT: You have access to powerful research tools that you SHOULD use:
+    
+    RESEARCH TOOLS:
+    - perplexity_research: Research academic papers on circle packing, recent algorithms, or mathematical insights
+    - perplexity_ask: Ask specific questions about circle packing techniques, optimization methods, or mathematical properties  
+    - google_web_search: Search for implementations, documentation, or recent developments in circle packing
+    
+    FILE TOOLS:
+    - read_file: Read existing code to understand current approaches
+    - write_file: Save intermediate results or test implementations
+    
+    STRATEGIC APPROACH:
+    Before making code changes, consider using these tools to:
+    1. Research "circle packing algorithms" or "dense circle packing optimization"
+    2. Look up "hexagonal packing", "Apollonian gaskets", or "sequential packing methods"
+    3. Find recent papers on "optimal circle arrangements" or "packing density improvements"
+    4. Search for "gradient descent circle packing" or "physics-based optimization"
+    
+    When evolving code:
+    - First research what approaches might improve the current method
+    - Look for mathematical insights that could increase packing density  
+    - Consider both constructive and iterative optimization approaches
+    - Research how others have tackled the n=26 case specifically
+    
+    Example research queries you might use:
+    - "What are the most effective algorithms for circle packing in squares?"
+    - "How can I improve circle packing density beyond simple hexagonal arrangements?"
+    - "What optimization techniques work best for small numbers of circles like n=26?"
+    
+    Remember: The goal is 2.635 sum of radii. Use your research tools to find better approaches!
+
+  evaluator_system_message: "You are an expert code reviewer specializing in computational geometry and optimization algorithms."
+  
+  num_top_programs: 2
+  num_diverse_programs: 1
+  use_template_stochasticity: true
+  
+  template_variations:
+    improvement_suggestion:
+      - "Based on my research, here's how we can improve this circle packing:"
+      - "After researching circle packing literature, I suggest:"
+      - "Drawing from optimization research, we can enhance this by:"
+      - "Recent advances in circle packing suggest we should:"
+
+  include_artifacts: true
+  max_artifact_bytes: 20480
+  artifact_security_filter: true
+
+# Database configuration
+database:
+  db_path: null
+  in_memory: true
+  log_prompts: true
+  population_size: 15
+  archive_size: 5
+  num_islands: 2
+  migration_interval: 10
+  migration_rate: 0.2
+  elite_selection_ratio: 0.3
+  exploration_ratio: 0.4
+  exploitation_ratio: 0.5
+  feature_dimensions:
+    - "complexity"
+    - "diversity"
+  feature_bins: 6
+  diversity_reference_size: 10
+
+# Evaluator configuration
+evaluator:
+  timeout: 300     # Extended timeout for research-enhanced solutions
+  max_retries: 2
+  cascade_evaluation: true
+  cascade_thresholds: [0.3, 0.6, 0.9]
+  parallel_evaluations: 2
+  use_llm_feedback: false
+  llm_feedback_weight: 0.1
