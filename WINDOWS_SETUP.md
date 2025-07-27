@@ -26,7 +26,7 @@ This fork includes significant improvements for Windows compatibility and integr
 ### Installation
 ```bash
 # Clone this fork
-git clone https://github.com/YOUR_USERNAME/openevolve.git
+git clone https://github.com/francoisjosephlacroix/openevolve.git
 cd openevolve
 
 # Install dependencies
